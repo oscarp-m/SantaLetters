@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎅 Parent Dashboard - Santa's Letters</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="snow-container">
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❄</div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>🎄 Parent Dashboard 👨‍👩‍👧‍👦</h1>
+            <p class="subtitle">View your child's letters to Santa</p>
+        </header>
+
+        <main>
+            <div class="parent-login-container">
+                <form id="parentLoginForm">
+                    <div class="form-group">
+                        <label for="parentCodeInput">Enter Your Parent Code:</label>
+                        <input type="text" id="parentCodeInput" name="parentCodeInput" required placeholder="Enter your parent code">
+                        <small>This is the same code you gave to your child</small>
+                    </div>
+                    <button type="submit" class="submit-btn">🔍 View Letters</button>
+                </form>
+            </div>
+
+            <div id="lettersContainer" class="letters-container hidden">
+                <h2>📬 Letters to Santa</h2>
+                <div id="lettersList"></div>
+            </div>
+        </main>
+
+        <footer>
+            <p><a href="/index.html">✉️ Back to Letter Writing</a></p>
+        </footer>
+    </div>
+
+    <script src="/js/parents.js"></script>
+</body>
+</html>

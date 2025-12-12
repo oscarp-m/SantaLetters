@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎅 Santa's Letters - Hack the Halls</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="snow-container">
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❄</div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>🎅 Write a Letter to Santa! 🎄</h1>
+            <p class="subtitle">Tell Santa what you want for Christmas!</p>
+        </header>
+
+        <main>
+            <div class="letter-form-container">
+                <form id="letterForm">
+                    <div class="form-group">
+                        <label for="childName">Your Name:</label>
+                        <input type="text" id="childName" name="childName" required placeholder="Enter your name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="parentCode">Parent Code:</label>
+                        <input type="text" id="parentCode" name="parentCode" required placeholder="Ask your parent for this code">
+                        <small>Your parents need this code to see your letter!</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message">Your Letter to Santa:</label>
+                        <textarea id="message" name="message" rows="8" required placeholder="Dear Santa, I would like..."></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-btn">📬 Send to Santa!</button>
+                </form>
+
+                <div id="result" class="result hidden"></div>
+            </div>
+
+            <div class="info-box">
+                <h3>📝 Tips for your letter:</h3>
+                <ul>
+                    <li>🎁 Tell Santa what gift you want</li>
+                    <li>⭐ Explain why you'd like it</li>
+                    <li>😊 Be specific about what it is</li>
+                    <li>🎄 Santa will help find it for your parents!</li>
+                </ul>
+            </div>
+        </main>
+
+        <footer>
+            <p><a href="/parents.html">👨‍👩‍👧‍👦 Parents: View Your Child's Letters</a></p>
+        </footer>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
