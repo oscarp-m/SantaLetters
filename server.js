@@ -61,8 +61,14 @@ app.post('/api/letters', async (req, res) => {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
+  let itemInfo = {
+    item_name: 'Gift item',
+    price_range: 'Price varies',
+    search_term: 'gift'
+  };
+
+  // Try to use OpenAI to extract item information
   try {
-    // Use OpenAI to extract item information and get price/link
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
@@ -78,23 +84,30 @@ app.post('/api/letters', async (req, res) => {
       temperature: 0.7,
     });
 
-    let itemInfo = {
-      item_name: 'Gift item',
-      price_range: 'Price varies',
-      search_term: 'gift'
-    };
-
     try {
       const response = completion.choices[0].message.content;
       // Try to parse JSON response
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        itemInfo = JSON.parse(jsonMatch[0]);
+        const parsed = JSON.parse(jsonMatch[0]);
+        itemInfo = { ...itemInfo, ...parsed };
       }
     } catch (parseError) {
       console.error('Error parsing OpenAI response:', parseError);
     }
+  } catch (aiError) {
+    console.error('OpenAI API error (using fallback):', aiError.message);
+    // Fallback: Try to extract a simple item name from the message
+    const words = message.toLowerCase().split(/\s+/);
+    const commonItems = ['bike', 'doll', 'toy', 'game', 'book', 'lego', 'skateboard', 'robot', 'puzzle', 'ball'];
+    const foundItem = commonItems.find(item => words.includes(item));
+    if (foundItem) {
+      itemInfo.item_name = foundItem.charAt(0).toUpperCase() + foundItem.slice(1);
+      itemInfo.search_term = foundItem;
+    }
+  }
 
+  try {
     // Generate a shopping link (using Google Shopping as example)
     const searchTerm = encodeURIComponent(itemInfo.search_term || itemInfo.item_name);
     const link = `https://www.google.com/search?tbm=shop&q=${searchTerm}`;
