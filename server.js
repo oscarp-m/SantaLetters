@@ -3,7 +3,6 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const OpenAI = require('openai');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const path = require('path');
 
 const app = express();
@@ -11,12 +10,18 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(express.static('public'));
+
+// Validate environment configuration
+if (!process.env.OPENAI_API_KEY) {
+  console.warn('⚠️  WARNING: OPENAI_API_KEY not configured. The app will use fallback mode for gift analysis.');
+  console.warn('   To enable AI-powered features, add your OpenAI API key to .env file');
+}
 
 // Initialize OpenAI
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY || 'dummy-key'
 });
 
 // Initialize Database
@@ -57,9 +62,28 @@ function initializeDatabase() {
 app.post('/api/letters', async (req, res) => {
   const { childName, parentCode, message } = req.body;
 
+  // Validate required fields
   if (!childName || !parentCode || !message) {
     return res.status(400).json({ error: 'All fields are required' });
   }
+
+  // Input validation and sanitization
+  if (typeof childName !== 'string' || childName.trim().length === 0 || childName.length > 100) {
+    return res.status(400).json({ error: 'Child name must be between 1 and 100 characters' });
+  }
+
+  if (typeof parentCode !== 'string' || parentCode.trim().length === 0 || parentCode.length > 50) {
+    return res.status(400).json({ error: 'Parent code must be between 1 and 50 characters' });
+  }
+
+  if (typeof message !== 'string' || message.trim().length === 0 || message.length > 2000) {
+    return res.status(400).json({ error: 'Message must be between 1 and 2000 characters' });
+  }
+
+  // Sanitize inputs (trim whitespace)
+  const sanitizedChildName = childName.trim();
+  const sanitizedParentCode = parentCode.trim();
+  const sanitizedMessage = message.trim();
 
   let itemInfo = {
     item_name: 'Gift item',
@@ -70,7 +94,7 @@ app.post('/api/letters', async (req, res) => {
   // Try to use OpenAI to extract item information
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-3.5-turbo-1106",
       messages: [
         {
           role: "system",
@@ -78,7 +102,7 @@ app.post('/api/letters', async (req, res) => {
         },
         {
           role: "user",
-          content: `Extract gift information from this letter to Santa: "${message}"`
+          content: `Extract gift information from this letter to Santa: "${sanitizedMessage}"`
         }
       ],
       temperature: 0.7,
@@ -98,7 +122,7 @@ app.post('/api/letters', async (req, res) => {
   } catch (aiError) {
     console.error('OpenAI API error (using fallback):', aiError.message);
     // Fallback: Try to extract a simple item name from the message
-    const words = message.toLowerCase().split(/\s+/);
+    const words = sanitizedMessage.toLowerCase().split(/\s+/);
     const commonItems = ['bike', 'doll', 'toy', 'game', 'book', 'lego', 'skateboard', 'robot', 'puzzle', 'ball'];
     const foundItem = commonItems.find(item => words.includes(item));
     if (foundItem) {
@@ -112,11 +136,11 @@ app.post('/api/letters', async (req, res) => {
     const searchTerm = encodeURIComponent(itemInfo.search_term || itemInfo.item_name);
     const link = `https://www.google.com/search?tbm=shop&q=${searchTerm}`;
 
-    // Save to database
+    // Save to database with sanitized inputs
     db.run(
       `INSERT INTO letters (child_name, parent_code, message, item_name, price, link) 
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [childName, parentCode, message, itemInfo.item_name, itemInfo.price_range, link],
+      [sanitizedChildName, sanitizedParentCode, sanitizedMessage, itemInfo.item_name, itemInfo.price_range, link],
       function(err) {
         if (err) {
           console.error('Database error:', err);
