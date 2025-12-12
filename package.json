@@ -1,0 +1,22 @@
+{
+  "name": "santaletters",
+  "version": "1.0.0",
+  "description": "Hack the halls project for christmas 2025",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "openai": "^6.10.0",
+    "sqlite3": "^5.1.7"
+  }
+}
