@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa Letter Maker</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: url('assets/wood.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .letter {
+            width: 600px;
+            height: 800px;
+            position: relative;
+            box-sizing: border-box;
+            /* keep a subtle shadow for the whole piece */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* patterned frame implemented with ::before so the center stays solid white */
+        .letter::before {
+            content: "";
+            position: absolute;
+            inset: 0; /* cover entire .letter */
+            background-image: 
+                repeating-linear-gradient(80deg, 
+                    blue 0cm, blue 0.333cm,
+                    red 0.333cm, red 0.666cm,
+                    white 0.666cm, white 1cm
+                ),
+                repeating-linear-gradient(-80deg, 
+                    blue 0cm, blue 0.333cm,
+                    red 0.333cm, red 0.666cm,
+                    white 0.666cm, white 1cm
+                );
+            background-repeat: repeat;
+            background-size: 1cm 1cm;
+            z-index: 0;
+        }
+
+        /* indented stripe: placed 2cm inward from the inner white edge (frame thickness = 20px) */
+        .letter::after {
+            content: "";
+            position: absolute;
+            /* inset 2cm from the outside edge of the .letter */
+            inset: 2cm;
+            border: 6px solid #b71c1c; /* visible stripe color/thickness */
+            box-sizing: border-box;
+            z-index: 2; /* above the patterned background, above the white inner box */
+            pointer-events: none;
+        }
+
+        .letter-inner {
+            position: relative;
+            z-index: 1;
+            margin: 20px; /* frame thickness */
+            background: white;
+            height: calc(100% - 40px);
+            box-sizing: border-box;
+            padding: 20px; /* inner padding for content */
+            overflow: auto;
+        }
+
+        .letter h1 {
+            text-align: center;
+            color: #d32f2f;
+            font-family: 'Georgia', serif;
+        }
+
+        .letter textarea {
+            width: 100%;
+            height: 600px;
+            border: none;
+            resize: none;
+            font-size: 16px;
+            line-height: 1.5;
+            outline: none;
+        }
+
+        .letter textarea::placeholder {
+            font-style: italic;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="letter">
+            <div class="letter-inner">
+                <h1>Dear Santa,</h1>
+                <textarea placeholder="Write your wishes here..."></textarea>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
