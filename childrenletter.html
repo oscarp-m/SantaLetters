@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa Letter Maker</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: url('assets/wood.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin-top: 70px; /* leave space for the fixed navbar */
+        }
+
+        /* top navigation bar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: #1F2232; /* updated navbar color */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            z-index: 1000;
+            color: #fff;
+        }
+
+        .navbar .logo {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-right { display: flex; gap: 8px; align-items: center; }
+
+        /* button base styles */
+        .btn {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Parent login button in navbar — light outline on navbar background */
+        .btn-parent {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.35);
+        }
+
+        /* Send letter primary button */
+        .btn-send {
+            background: #F45B69;
+            color: #fff;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .actions { margin-top: 12px; display: flex; justify-content: center; }
+
+        /* place the send button at the bottom center of the white paper, raised 1cm */
+        .actions {
+            position: absolute;
+            bottom: calc(12px + 1cm); /* raised 1cm from previous base position */
+            left: 50%;
+            transform: translateX(-50%);
+            margin: 0;
+            z-index: 999; /* ensure it's on top */
+        }
+
+        .letter {
+            width: 600px;
+            height: 800px;
+            position: relative;
+            box-sizing: border-box;
+            /* keep a subtle shadow for the whole piece */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow: hidden; /* contain pseudo-element */
+        }
+
+        /* red line inset on the white paper itself using ::before so it doesn't cover content */
+        .letter-inner {
+            position: relative;
+            /* position the white paper 0.5cm from the outer edge */
+            margin: 0.5cm;
+            background: white;
+            box-sizing: border-box;
+            /* leave room for the inset red line and content */
+            height: calc(100% - 1cm);
+            padding: 26px; /* enough padding so text won't overlap the inner line */
+            overflow: hidden; /* hide container scrollbar */
+        }
+
+        /* inset red line inside the paper; inset distance chosen so it sits away from content */
+        .letter-inner::before {
+            content: "";
+            position: absolute;
+            inset: 12px; /* distance from the paper edge to the red line */
+            border: 6px solid #b71c1c; /* red line thickness/color */
+            box-sizing: border-box;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* ensure .letter-inner is positioned so absolute children can be placed above the red line */
+        .letter-inner { position: relative; }
+
+        .letter h1 {
+            text-align: center;
+            color: #d32f2f;
+            font-family: 'Georgia', serif;
+        }
+
+        .letter textarea {
+            width: 100%;
+            /* leave space at the bottom for the send button (including the 1cm raise) */
+            margin-top: 16px;
+            height: calc(100% - 16px - 72px - 1cm); /* reserve space for button area and raised offset */
+            border: none;
+            resize: none;
+            font-size: 16px;
+            line-height: 1.5;
+            outline: none;
+            /* hide native scrollbars but keep scrolling functional */
+            overflow: auto;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE 10+ */
+        }
+
+        .letter textarea::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .letter textarea::placeholder {
+            font-style: italic;
+            color: #aaa;
+        }
+
+        /* small responsive tweak */
+        @media (max-width: 480px) {
+            .letter { width: calc(100% - 24px); }
+            .navbar { padding: 0 10px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Santa Letter Maker</div>
+        <div class="nav-right">
+            <button class="btn btn-parent">Parent Login</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="letter">
+            <div class="letter-inner">
+                <h1>Dear Santa,</h1>
+                <textarea placeholder="Write your wishes here..."></textarea>
+                <div class="actions">
+                    <button class="btn btn-send">Send Letter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
