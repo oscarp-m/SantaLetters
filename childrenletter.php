@@ -1,3 +1,45 @@
+<?php
+session_start();
+include("connect.php");
+
+$messageSent = false;
+$error = "";
+$adultError = "";
+
+if (!isset($_SESSION['email'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$email = $_SESSION['email'];
+
+// Handle message submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
+    $msg = $conn->real_escape_string($_POST['message']);
+    $insert = "INSERT INTO messages (email, message) VALUES ('$email', '$msg')";
+    if ($conn->query($insert)) {
+        $messageSent = true;
+    } else {
+        $error = "Error: " . $conn->error;
+    }
+}
+
+// Handle adult access (optional, not hooked to button below)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['adult_password'])) {
+    $inputPassword = $_POST['adult_password'];
+    $query = $conn->query("SELECT password FROM userinfo WHERE email='$email'");
+    if ($row = $query->fetch_assoc()) {
+        if ($row['password'] === $inputPassword) {
+            header("Location: adultletter.php");
+            exit;
+        } else {
+            $adultError = "Incorrect password.";
+        }
+    } else {
+        $adultError = "User not found.";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,23 +54,20 @@
             background: url('assets/wood.jpg') no-repeat center center fixed;
             background-size: cover;
         }
-
         .container {
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin-top: 70px; /* leave space for the fixed navbar */
+            margin-top: 70px;
         }
-
-        /* top navigation bar */
         .navbar {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             height: 56px;
-            background: #1F2232; /* updated navbar color */
+            background: #1F2232;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -37,15 +76,11 @@
             z-index: 1000;
             color: #fff;
         }
-
         .navbar .logo {
             font-weight: 700;
             letter-spacing: 0.5px;
         }
-
         .nav-right { display: flex; gap: 8px; align-items: center; }
-
-        /* button base styles */
         .btn {
             padding: 8px 12px;
             border-radius: 6px;
@@ -54,106 +89,91 @@
             font-weight: 600;
             font-size: 14px;
         }
-
-        /* Parent login button in navbar — light outline on navbar background */
         .btn-parent {
             background: transparent;
             color: #fff;
             border: 1px solid rgba(255,255,255,0.35);
         }
-
-        /* Send letter primary button */
         .btn-send {
             background: #F45B69;
             color: #fff;
             border: none;
             box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }
-
         .actions { margin-top: 12px; display: flex; justify-content: center; }
-
-        /* place the send button at the bottom center of the white paper, raised 1cm */
         .actions {
             position: absolute;
-            bottom: calc(12px + 1cm); /* raised 1cm from previous base position */
+            bottom: calc(12px + 1cm);
             left: 50%;
             transform: translateX(-50%);
             margin: 0;
-            z-index: 999; /* ensure it's on top */
+            z-index: 999;
         }
-
         .letter {
             width: 600px;
             height: 800px;
             position: relative;
             box-sizing: border-box;
-            /* keep a subtle shadow for the whole piece */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            overflow: hidden; /* contain pseudo-element */
+            overflow: hidden;
         }
-
-        /* red line inset on the white paper itself using ::before so it doesn't cover content */
         .letter-inner {
             position: relative;
-            /* position the white paper 0.5cm from the outer edge */
             margin: 0.5cm;
             background: white;
             box-sizing: border-box;
-            /* leave room for the inset red line and content */
             height: calc(100% - 1cm);
-            padding: 26px; /* enough padding so text won't overlap the inner line */
-            overflow: hidden; /* hide container scrollbar */
+            padding: 26px;
+            overflow: hidden;
         }
-
-        /* inset red line inside the paper; inset distance chosen so it sits away from content */
         .letter-inner::before {
             content: "";
             position: absolute;
-            inset: 12px; /* distance from the paper edge to the red line */
-            border: 6px solid #b71c1c; /* red line thickness/color */
+            inset: 12px;
+            border: 6px solid #b71c1c;
             box-sizing: border-box;
             pointer-events: none;
             z-index: 1;
         }
-
-        /* ensure .letter-inner is positioned so absolute children can be placed above the red line */
         .letter-inner { position: relative; }
-
         .letter h1 {
             text-align: center;
             color: #d32f2f;
             font-family: 'Georgia', serif;
         }
-
         .letter textarea {
             width: 100%;
-            /* leave space at the bottom for the send button (including the 1cm raise) */
             margin-top: 16px;
-            height: calc(100% - 16px - 72px - 1cm); /* reserve space for button area and raised offset */
+            height: calc(100% - 16px - 72px - 1cm);
             border: none;
             resize: none;
             font-size: 16px;
             line-height: 1.5;
             outline: none;
-            /* hide native scrollbars but keep scrolling functional */
             overflow: auto;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE 10+ */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
-
         .letter textarea::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
+            display: none;
         }
-
         .letter textarea::placeholder {
             font-style: italic;
             color: #aaa;
         }
-
-        /* small responsive tweak */
         @media (max-width: 480px) {
             .letter { width: calc(100% - 24px); }
             .navbar { padding: 0 10px; }
+        }
+        .success-message {
+            color: green;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -161,17 +181,31 @@
     <nav class="navbar">
         <div class="logo">Santa Letter Maker</div>
         <div class="nav-right">
-            <button class="btn btn-parent">Parent Login</button>
+            <form method="post" style="display:inline;">
+                <input type="password" name="adult_password" placeholder="Parent password" style="padding:6px; border-radius:4px; border:1px solid #ccc;">
+                <button type="submit" class="btn btn-parent">Parent Login</button>
+            </form>
         </div>
     </nav>
     <div class="container">
         <div class="letter">
             <div class="letter-inner">
                 <h1>Dear Santa,</h1>
-                <textarea placeholder="Write your wishes here..."></textarea>
-                <div class="actions">
-                    <button class="btn btn-send">Send Letter</button>
-                </div>
+                <?php if ($messageSent): ?>
+                    <div class="success-message">Your letter has been sent to Santa!</div>
+                <?php endif; ?>
+                <?php if (!empty($error)): ?>
+                    <div class="error-message"><?php echo $error; ?></div>
+                <?php endif; ?>
+                <?php if (!empty($adultError)): ?>
+                    <div class="error-message"><?php echo $adultError; ?></div>
+                <?php endif; ?>
+                <form method="post">
+                    <textarea name="message" placeholder="Write your wishes here..." required></textarea>
+                    <div class="actions">
+                        <button type="submit" class="btn btn-send">Send Letter</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
